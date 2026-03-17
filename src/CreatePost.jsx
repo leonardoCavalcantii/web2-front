@@ -46,10 +46,30 @@ export default function CreatePost() {
       formData.append('image', imageFile);
       formData.append('review', review);
       formData.append('rating', rating);
+      
+      console.log(formData);
 
+      const token = `Bearer ${localStorage.getItem("token")}`;
+      console.log(token);
+      const userStr = localStorage.getItem("user");
+      const user = JSON.parse(userStr);
+      const newBody = {
+          gameId: 1,
+          userId: user.id,
+          rating,
+          content: review
+        };
+      console.log(JSON.stringify(newBody));
       const response = await fetch('https://web2-back-production.up.railway.app/api/posts', {
+      //const response = await fetch('http://localhost:3000/api/posts', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Authorization': token,
+          //'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbnpvQGVtYWlsLmNvbSIsImlhdCI6MTc3MzcwOTQ2NCwiZXhwIjoxNzczNzQ1NDY0fQ.eaPGRMJH3VtlgMaa9Md1X-SzkabU9JxB5p3OL5eT79g',
+          'Content-Type': 'application/json'
+        },
+        //body: formData,
+          body: JSON.stringify(newBody)
       });
 
       const data = await response.json();

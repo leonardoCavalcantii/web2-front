@@ -21,8 +21,8 @@ export default function SearchPosts() {
     } else {
       const filtered = posts.filter(
         (post) =>
-          post.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          post.review.toLowerCase().includes(searchTerm.toLowerCase())
+          (post.name ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+          post.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredPosts(filtered);
     }
@@ -37,6 +37,7 @@ export default function SearchPosts() {
       
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         setPosts(data);
         setFilteredPosts(data);
         setMessage('');
@@ -145,7 +146,7 @@ export default function SearchPosts() {
                   {/* Conteúdo do lado direito */}
                   <div style={{ flex: 1 }}>
                     <h3 style={{ marginTop: 0, marginBottom: 12, color: '#2d3748', fontSize: '20px', fontWeight: '700' }}>
-                      {post.name}
+                      {post.name ?? "The super jilherme adventures"}
                     </h3>
                     
                     {/* Rating com estrelas */}
@@ -161,8 +162,8 @@ export default function SearchPosts() {
 
                     {/* Review */}
                     <p style={{ color: '#4a5568', margin: '12px 0', lineHeight: 1.7, fontSize: '14px' }}>
-                      {post.review.substring(0, 220)}
-                      {post.review.length > 220 ? '...' : ''}
+                      {post.content?.substring(0, 220)}
+                      {post.content.length > 220 ? '...' : ''}
                     </p>
 
                     {/* Data */}
