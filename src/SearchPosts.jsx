@@ -40,9 +40,9 @@ export default function SearchPosts() {
       if (response.ok) {
         const data = await response.json();
         console.log(data);
-        for(let d of data) {
-          d.image = `http://localhost:3000/${d.id}.png`;
-        }
+        //for(let d of data) {
+          //d.image = `http://localhost:3000/${d.id}.png`;
+        //}
         setPosts(data);
         setFilteredPosts(data);
         setMessage('');
@@ -132,10 +132,10 @@ export default function SearchPosts() {
                   }}
                 >
                   {/* Imagem do lado esquerdo */}
-                  {post.image && ( 
+                  {post.image64 && ( 
                     <div style={{ minWidth: 160, flexShrink: 0 }}>
                       <img
-                        src={post.image}
+                        src={post.image64}
                         alt={post.name}
                         style={{
                           width: '160px',
