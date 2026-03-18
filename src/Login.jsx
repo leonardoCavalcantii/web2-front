@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import './index.css'
+import { getBaseServerUrl } from "../config/config";
 
 function Login({ onSwitch }) {
   const [email, setEmail] = useState("");
@@ -15,7 +16,7 @@ function Login({ onSwitch }) {
     try {
         console.log("nosses loguues!!!!!!!!!!!!!!!!");
         console.log({email, password});
-      const response = await fetch("https://web2-back-production.up.railway.app/api/login", {
+      const response = await fetch(`${getBaseServerUrl()}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })

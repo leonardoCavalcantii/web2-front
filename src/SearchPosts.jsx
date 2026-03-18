@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './index.css';
+import { getBaseServerUrl } from '../config/config';
 
 export default function SearchPosts() {
   const [posts, setPosts] = useState([]);
@@ -21,7 +22,7 @@ export default function SearchPosts() {
     } else {
       const filtered = posts.filter(
         (post) =>
-          (post.name ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (post.game.title ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
           post.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredPosts(filtered);
@@ -31,13 +32,17 @@ export default function SearchPosts() {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        'https://web2-back-production.up.railway.app/api/posts'
-      );
+      const queryString = window.location.search;
+      const params = new URLSearchParams(queryString);
+      const page = parseInt(params.get('page') ?? 1);
+      const response = await fetch(`${getBaseServerUrl()}/posts?page=${page}`);
       
       if (response.ok) {
         const data = await response.json();
         console.log(data);
+        for(let d of data) {
+          d.image = `http://localhost:3000/${d.id}.png`;
+        }
         setPosts(data);
         setFilteredPosts(data);
         setMessage('');
@@ -127,7 +132,7 @@ export default function SearchPosts() {
                   }}
                 >
                   {/* Imagem do lado esquerdo */}
-                  {post.image && (
+                  {post.image && ( 
                     <div style={{ minWidth: 160, flexShrink: 0 }}>
                       <img
                         src={post.image}
@@ -146,7 +151,7 @@ export default function SearchPosts() {
                   {/* Conteúdo do lado direito */}
                   <div style={{ flex: 1 }}>
                     <h3 style={{ marginTop: 0, marginBottom: 12, color: '#2d3748', fontSize: '20px', fontWeight: '700' }}>
-                      {post.name ?? "The super jilherme adventures"}
+                      {post.game.title ?? "The super jilherme adventures"}
                     </h3>
                     
                     {/* Rating com estrelas */}

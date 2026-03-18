@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './index.css';
+import { getBaseServerUrl } from '../config/config';
+import { getGamesFromServer } from '../services/game.service';
 
 export default function CreatePost() {
   const [name, setName] = useState('');
@@ -11,6 +13,7 @@ export default function CreatePost() {
   const [hoverRating, setHoverRating] = useState(0);
   const [message, setMessage] = useState('');
   const [ok, setOk] = useState(false);
+  const [gameId, setGameId] = useState("");
   const navigate = useNavigate();
 
   const handleImageChange = (e) => {
@@ -23,6 +26,22 @@ export default function CreatePost() {
       };
       reader.readAsDataURL(file);
     }
+  };
+  
+  const getGames = async () => {
+    const games = await getGamesFromServer();
+    const gameContainer = document.getElementById("select-game-container");
+    let innerHtml = `
+      <label for="games">Game selecionado</label>
+      <select name="games" id="games" onchange="setGameId(this.value)">
+    `;
+    for(let game of games) {
+      innerHtml += `
+        <option value="${game.id}">${game.title}</option>
+      `;
+    }
+    innerHtml += "</select>:"
+    gameContainer.innerHTML = innerHtml;
   };
 
   const handleSubmit = async (e) => {
@@ -53,19 +72,23 @@ export default function CreatePost() {
       console.log(token);
       const userStr = localStorage.getItem("user");
       const user = JSON.parse(userStr);
+      const gameSelected = document.getElementById('games');
+      console.log("game id:", parseInt(gameSelected.value));
+      console.log("game id str:", gameSelected.value);
+      const image = document.getElementById("image");
+      console.log(image.src);
       const newBody = {
-          gameId: 1,
+          gameId: parseInt(gameSelected.value),
           userId: user.id,
           rating,
-          content: review
+          content: review,
+          image: image.src
         };
       console.log(JSON.stringify(newBody));
-      const response = await fetch('https://web2-back-production.up.railway.app/api/posts', {
-      //const response = await fetch('http://localhost:3000/api/posts', {
+      const response = await fetch(`${getBaseServerUrl()}/posts`, {
         method: 'POST',
         headers: {
           'Authorization': token,
-          //'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbnpvQGVtYWlsLmNvbSIsImlhdCI6MTc3MzcwOTQ2NCwiZXhwIjoxNzczNzQ1NDY0fQ.eaPGRMJH3VtlgMaa9Md1X-SzkabU9JxB5p3OL5eT79g',
           'Content-Type': 'application/json'
         },
         //body: formData,
@@ -92,6 +115,7 @@ export default function CreatePost() {
       setMessage('Erro ao conectar com API');
     }
   };
+  getGames();
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', padding: '40px 20px' }}>
@@ -111,7 +135,10 @@ export default function CreatePost() {
                 style={{ borderRadius: '8px', border: '2px solid rgba(102, 126, 234, 0.2)', padding: '12px' }}
               />
             </div>
-
+            <div style={{ marginBottom: 25 }}>
+              <div className="field-label" style={{ fontSize: '14px', fontWeight: '600', color: '#667eea', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Jogo do review</div>
+              <div id="select-game-container"></div>
+            </div>
             <div style={{ marginBottom: 25 }}>
               <div className="field-label" style={{ fontSize: '14px', fontWeight: '600', color: '#667eea', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Imagem do Jogo</div>
               <input
@@ -124,6 +151,7 @@ export default function CreatePost() {
               {imagePreview && (
                 <div style={{ marginTop: '15px', textAlign: 'center' }}>
                   <img
+                    id="image"
                     src={imagePreview}
                     alt="Preview"
                     style={{
